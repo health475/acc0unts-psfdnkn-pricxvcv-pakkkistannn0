@@ -98,7 +98,7 @@ wss.on('connection', (ws, req) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   if (url.pathname === '/worker-ws') {
     const secret = url.searchParams.get('secret');
-    if (secret !== (process.env.WORKER_SECRET || 'BR2QbvhN3t+lE7IlBsqdHy7GK+fKkWwazTp/Ju/l7mc=')) {
+    if (secret !== (process.env.WORKER_SECRET || 'change_this_secret')) {
       console.log('[WS] Invalid worker secret, closing');
       ws.close();
       return;
