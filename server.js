@@ -1,3 +1,4 @@
+
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
@@ -97,13 +98,16 @@ wss.on('connection', (ws, req) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   if (url.pathname === '/worker-ws') {
     const secret = url.searchParams.get('secret');
-    if (secret !== (process.env.WORKER_SECRET || 'change_this_secret')) {
+    if (secret !== (process.env.WORKER_SECRET || 'BR2QbvhN3t+lE7IlBsqdHy7GK+fKkWwazTp/Ju/l7mc=')) {
       console.log('[WS] Invalid worker secret, closing');
       ws.close();
       return;
     }
     workerWs = ws;
     console.log('[WS] Worker connected');
+    const pingInterval = setInterval(() => {
+      if (ws.readyState === ws.OPEN) ws.ping();
+    }, 25000);
     ws.on('message', (data) => {
       try {
         const msg = JSON.parse(data);
@@ -121,7 +125,7 @@ wss.on('connection', (ws, req) => {
         }
       } catch (e) {}
     });
-    ws.on('close', () => { workerWs = null; console.log('[WS] Worker disconnected'); });
+    ws.on('close', () => { clearInterval(pingInterval); workerWs = null; console.log('[WS] Worker disconnected'); });
   }
 });
 
