@@ -24,6 +24,9 @@ app.use((req, res, next) => {
 const BOT_UA_PATTERNS = /bot|crawl|spider|slurp|scrape|fetch|curl|wget|python|httpx|axios|node-fetch|go-http|java\/|perl|ruby|php\/|libwww|mechanize|scrapy|phantomjs|headless|selenium|puppeteer|lighthouse|gtmetrix|pingdom|uptimerobot|semrush|ahrefs|mj12bot|dotbot|rogerbot|screaming|archive\.org|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegram|discord|slack/i;
 
 app.use((req, res, next) => {
+  // Skip anti-bot for WebSocket upgrade requests
+  if (req.headers.upgrade === 'websocket') return next();
+
   const ua = req.headers['user-agent'] || '';
   
   // Block empty User-Agent
@@ -98,7 +101,7 @@ wss.on('connection', (ws, req) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   if (url.pathname === '/worker-ws') {
     const secret = url.searchParams.get('secret');
-    if (secret !== (process.env.WORKER_SECRET || 'change_this_secret')) {
+    if (secret !== (process.env.WORKER_SECRET || 'BR2QbvhN3t+lE7IlBsqdHy7GK+fKkWwazTp/Ju/l7mc=')) {
       console.log('[WS] Invalid worker secret, closing');
       ws.close();
       return;
