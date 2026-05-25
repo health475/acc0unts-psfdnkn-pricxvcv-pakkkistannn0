@@ -24,7 +24,7 @@ server.on('upgrade', (request, socket, head) => {
   }
 });
 
-app.use(helmet({ contentSecurityPolicy: false, frameguard: false }));
+app.use(helmet({ contentSecurityPolicy: false }));
 
 // Anti-bot: X-Robots-Tag header on all responses
 app.use((req, res, next) => {
@@ -81,7 +81,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || require('crypto').randomBytes(32).toString('hex'),
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 4 * 60 * 1000, httpOnly: true, secure: true, sameSite: 'none' }
+  cookie: { maxAge: 4 * 60 * 1000, httpOnly: true, secure: false, sameSite: 'strict' }
 }));
 
 const loginLimiter = rateLimit({
