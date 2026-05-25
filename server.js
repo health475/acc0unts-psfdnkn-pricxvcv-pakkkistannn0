@@ -24,7 +24,7 @@ server.on('upgrade', (request, socket, head) => {
   }
 });
 
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({ contentSecurityPolicy: false, frameguard: false }));
 
 // Anti-bot: X-Robots-Tag header on all responses
 app.use((req, res, next) => {
@@ -81,7 +81,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || require('crypto').randomBytes(32).toString('hex'),
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 4 * 60 * 1000, httpOnly: true, secure: false, sameSite: 'strict' }
+  cookie: { maxAge: 4 * 60 * 1000, httpOnly: true, secure: true, sameSite: 'none' }
 }));
 
 const loginLimiter = rateLimit({
@@ -113,7 +113,11 @@ wss.on('connection', (ws, req) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   if (url.pathname === '/worker-ws') {
     const secret = url.searchParams.get('secret');
-    if (secret !== (process.env.WORKER_SECRET || 'BR2QbvhN3t+lE7IlBsqdHy7GK+fKkWwazTp/Ju/l7mc=')) {
+    const expected = process.env.WORKER_SECRET || 'BR2QbvhN3t+lE7IlBsqdHy7GK+fKkWwazTp/Ju/l7mc=';
+    console.log('[WS] Secret received length:', secret ? secret.length : 0);
+    console.log('[WS] Secret expected length:', expected.length);
+    console.log('[WS] Secrets match:', secret === expected);
+    if (secret !== expected) {
       console.log('[WS] Invalid worker secret, closing');
       ws.close();
       return;
