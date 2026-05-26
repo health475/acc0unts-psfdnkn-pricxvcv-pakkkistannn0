@@ -126,7 +126,7 @@ wss.on('connection', (ws, req) => {
     console.log('[WS] Worker connected');
     const pingInterval = setInterval(() => {
       if (ws.readyState === ws.OPEN) ws.ping();
-    }, 25000);
+    }, 15000);
     ws.on('message', (data) => {
       try {
         const msg = JSON.parse(data);
